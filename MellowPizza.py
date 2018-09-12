@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import random
+import random, pickle
 
 #global variables are usually in all caps TODO change all these below
 SAUCE = ["olive oil and garlic","pesto","Mellow Red Sauce"]
@@ -33,6 +33,9 @@ class TasteProfile():
 		self.cheesepref = []
 		self.cheesepref.append(raw_input("What is your favorite cheese?"))
 		self.cheesepref.append(raw_input("What is your second favorite cheese?"))
+		self.cheese_dislike = []
+		self.cheese_dislike.append(raw_input("Is there any cheese you hate?")
+		self.cheese_dislike.append(raw_input("Anything else, hater?")
 		#remember to code for idiots who answer bullshit
 		if vegetarian:
 			print "Here are some non-meat protein options, you hippie:"
@@ -46,6 +49,10 @@ class TasteProfile():
 			self.meatpref = []
 			self.meatpref.append(raw_input("What's your favorite meat?"))
 			self.meatpref.append(raw_input("What's your next favorite meat?"))
+			self.meat_dislike = []
+			self.meat_dislike.append(raw_input("Is there any meat you hate?")
+			self.meat_dislike.append(raw_input("Anything else, hater?")
+
 		print """Vegetables are good for you. The veggies below are normal-priced. 
 			If you wanna pay out the nose for an avocado and simultaneously cause the drought in Calfornia, you can do that, too. 
 			Here's your options:"""
@@ -54,6 +61,10 @@ class TasteProfile():
 		self.veggiepref.append(raw_input("What's your favorite vegetable?"))
 		self.veggiepref.append(raw_input("What's your next favorite veggie?"))
 		self.veggiepref.append(raw_input("How about one more? Michelle Obama will be proud."))
+		self.veggie_dislike = []
+		self.veggie_dislike.append(raw_input("Which of these veggies do you hate?")
+		self.veggie_dislike.append(raw_input("Anything else?")
+
 		
 			
 		
@@ -72,7 +83,7 @@ def choose_with_probability(things, probs = []):
 	if len(probs) == 0: 
 		my_choice = random.choice(things)
 	else:
-		my_choice = random.choice(things) #TODO: implement probability
+		my_choice = random.choice(things) #TODO: implement probability; probably use numpy.random.choice
 		
 	return my_choice
 	
@@ -112,13 +123,36 @@ def get_yes_or_no_answer(text, reply):
 			choice = False		
 	return choice
 
+def get_profiles():
+	try: 
+		f = pickle.load(open("Profiles.dat", "r"))
+	except:
+		f = {}
+	return f
+	
+	
 if __name__ == "__main__":
 	
 	
 	print "Fleens? You're not fleens! Hmph!... Whoever you are, MAKE ME A PIZZA!"
 	#This is a reference to the Zoombinis, obviously
 	print "(At Mellow Mushroom)"
+	print "You can choose your favorite ingredients to make a pizza just for you or make a random pizza!"
 
+	ProfileDict = get_profiles()
+	
+	x = get_yes_or_no_answer("Have you been here before?")
+	if x:
+		y = get_yes_or_no_answer("Did you make a taste profile?")
+		if y: 
+			z = get_yes_or_no_answer("Do you want to use your taste profile today?")
+		else:
+			Profile = False
+	else: 
+		a = get_yes_or_no_answer("Do you want to create a taste profile?")
+		if a: 
+			Profile = TasteProfile()
+	
 	toppings = raw_input("How many toppings do you want? ")
 	toppings=int(toppings)
 
@@ -131,11 +165,13 @@ if __name__ == "__main__":
 	wants_fancy_veggies = get_yes_or_no_answer("Do you want to pay extra for avocados and single-handedly"\
 		" cause the drought in California, you monster? ", "I think you know what I think about that.")
 
-		
-
-
 	pizza = []
 
+	if Profile:
+		pass #TODO THIS
+	else:
+		
+	
 	pizza.append(choose_with_probability(sauce, sauce_probs))
 
 	if wants_fancy_cheese:
