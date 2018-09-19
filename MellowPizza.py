@@ -152,52 +152,74 @@ if __name__ == "__main__":
 		a = get_yes_or_no_answer("Do you want to create a taste profile?")
 		if a: 
 			Profile = TasteProfile()
+		else:
+			pass
 	
-	toppings = raw_input("How many toppings do you want? ")
-	toppings=int(toppings)
-
-	wants_fancy_cheese = get_yes_or_no_answer("Do you want to pay extra for fancy cheese? ",
-		"What are you talking about?")
-	carnivore = get_yes_or_no_answer("Do you want meat on this pizza? ", "I was trying to be nice.")
-	if carnivore:
-		wants_fancy_meat = get_yes_or_no_answer("Do you want to pay extra for fancy meat? ", 
-		"Sir, you're making a scene.")
-	wants_fancy_veggies = get_yes_or_no_answer("Do you want to pay extra for avocados and single-handedly"\
-		" cause the drought in California, you monster? ", "I think you know what I think about that.")
-
-	pizza = []
-
-	if Profile:
-		pass #TODO THIS
-	else:
+	def pizza_builder(Profile):
+		toppings = raw_input("How many toppings do you want? ")
+		toppings=int(toppings)
 		
-	
-	pizza.append(choose_with_probability(sauce, sauce_probs))
+		wants_fancy_cheese = get_yes_or_no_answer("Do you want to pay extra for fancy cheese? ",
+			"What are you talking about?")
+		carnivore = get_yes_or_no_answer("Do you want meat on this pizza? ", "I was trying to be nice.")
+		if carnivore:
+			wants_fancy_meat = get_yes_or_no_answer("Do you want to pay extra for fancy meat? ", 
+			"Sir, you're making a scene.")
+		wants_fancy_veggies = get_yes_or_no_answer("Do you want to pay extra for avocados and single-handedly"\
+			" cause the drought in California, you monster? ", "I think you know what I think about that.")
 
-	if wants_fancy_cheese:
-		pizza.append(choose_with_probability(fancy_cheese))
-	else: 
-		pizza.append(choose_with_probability(cheese))
+		pizza = []
 
-	if not carnivore:
-		pizza.append(choose_with_probability(not_meat))
-	elif wants_fancy_meat:
-		pizza.append(choose_with_probability(fancy_meat))
-	else:
-		pizza.append(choose_with_probability(meat))
-
-	if wants_fancy_veggies:
-		pizza.append(choose_with_probability(fancy_veggies))
-		toppings -= 1
+		if Profile:
+			cheese_probs = []
+			if wants_fancy_cheese:
+				base_probs = 1.0/(len(CHEESE + FANCY_CHEESE - Profile.cheese_dislike + Profile.cheesepref))
+				for a in (CHEESE + FANCY_CHEESE):
+					if a == Profile.cheese_dislike:
+						cheese_probs.append(0)
+					if a == Profile.cheesepref:
+						cheese_probs.append(base_probs*2.0)
+			else:
+				base_probs = 1.0/(len(CHEESE - Profile.cheese_dislike + Profile.cheesepref))
+				for a in (CHEESE + FANCY_CHEESE):
+					if a in FANCY_CHEESE:
+						cheese_probs.append(0)
+						continue
+					if a == Profile.cheese_dislike:
+						cheese_probs.append(0)
+					if a == Profile.cheesepref:
+						cheese_probs.append(base_probs*2.0)
+					
+#WE ARE HERE GETTING READY FOR THE MEATS MEAAAAAAAAAAAAAAAAATTTTTTTTSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+		else:
+			
 		
-	for a in range(toppings-1):
-		pizza.append(choose_with_probability(veggies)) #TODO exclude duplicate veggies
+		pizza.append(choose_with_probability(sauce, sauce_probs))
 
-	print "CONGRATULATIONS! \nYour perfect personalized pizza is a delicious Mellow Mushroom pizza with:"
+		if wants_fancy_cheese:
+			pizza.append(choose_with_probability(fancy_cheese))
+		else: 
+			pizza.append(choose_with_probability(cheese))
 
-	my_pizza = ""
-	for thing in pizza: 
-		my_pizza += "%s " % thing 
-		
-	print my_pizza
+		if not carnivore:
+			pizza.append(choose_with_probability(not_meat))
+		elif wants_fancy_meat:
+			pizza.append(choose_with_probability(fancy_meat))
+		else:
+			pizza.append(choose_with_probability(meat))
+
+		if wants_fancy_veggies:
+			pizza.append(choose_with_probability(fancy_veggies))
+			toppings -= 1
+			
+		for a in range(toppings-1):
+			pizza.append(choose_with_probability(veggies)) #TODO exclude duplicate veggies
+
+		print "CONGRATULATIONS! \nYour perfect personalized pizza is a delicious Mellow Mushroom pizza with:"
+
+		my_pizza = ""
+		for thing in pizza: 
+			my_pizza += "%s " % thing 
+			
+		print my_pizza
 
