@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import random, pickle
+import numpy as np
 
 #global variables are usually in all caps TODO change all these below
 SAUCE = ["olive oil and garlic","pesto","Mellow Red Sauce"]
@@ -34,10 +35,10 @@ class TasteProfile():
 		self.cheesepref.append(raw_input("What is your favorite cheese?"))
 		self.cheesepref.append(raw_input("What is your second favorite cheese?"))
 		self.cheese_dislike = []
-		self.cheese_dislike.append(raw_input("Is there any cheese you hate?")
-		self.cheese_dislike.append(raw_input("Anything else, hater?")
+		self.cheese_dislike.append(raw_input("Is there any cheese you hate?"))
+		self.cheese_dislike.append(raw_input("Anything else, hater?"))
 		#remember to code for idiots who answer bullshit
-		if vegetarian:
+		if self.vegetarian:
 			print "Here are some non-meat protein options, you hippie:"
 			ingredient_print(NOT_MEAT)
 			self.non_meatpref = raw_input("What is your favorite kind of fake dead animal?")
@@ -50,10 +51,10 @@ class TasteProfile():
 			self.meatpref.append(raw_input("What's your favorite meat?"))
 			self.meatpref.append(raw_input("What's your next favorite meat?"))
 			self.meat_dislike = []
-			self.meat_dislike.append(raw_input("Is there any meat you hate?")
-			self.meat_dislike.append(raw_input("Anything else, hater?")
+			self.meat_dislike.append(raw_input("Is there any meat you hate?"))
+			self.meat_dislike.append(raw_input("Anything else, hater?"))
 
-		print """Vegetables are good for you. The veggies below are normal-priced. 
+		print """Vegetables are good for you. The veggies below are normal-priced, except for one. 
 			If you wanna pay out the nose for an avocado and simultaneously cause the drought in Calfornia, you can do that, too. 
 			Here's your options:"""
 		ingredient_print(VEGGIES)
@@ -62,8 +63,8 @@ class TasteProfile():
 		self.veggiepref.append(raw_input("What's your next favorite veggie?"))
 		self.veggiepref.append(raw_input("How about one more? Michelle Obama will be proud."))
 		self.veggie_dislike = []
-		self.veggie_dislike.append(raw_input("Which of these veggies do you hate?")
-		self.veggie_dislike.append(raw_input("Anything else?")
+		self.veggie_dislike.append(raw_input("Which of these veggies do you hate?"))
+		self.veggie_dislike.append(raw_input("Anything else?"))
 
 		
 			
@@ -71,19 +72,19 @@ class TasteProfile():
 def ingredient_print(c):
 	for x in range(len(c)/3):
 		print "%s    %s    %s" %(c[0+3*x],c[1+3*x],c[2+3*x])
-	if mod(len(c),3) == 0:
+	if len(c)%3 == 0:
 		pass
-	if mod(len(c),3) == 1:
+	if len(c)%3 == 1:
 		print "%s" %(c[-1])
-	if mod(len(c),3) == 2:
+	if len(c)%3 == 2:
 		print "%s    %s" %(c[-2],c[-1])
 
 
-def choose_with_probability(things, probs = []):
+def choose_with_probability(things, probs =[]):
 	if len(probs) == 0: 
 		my_choice = random.choice(things)
 	else:
-		my_choice = random.choice(things) #TODO: implement probability; probably use numpy.random.choice
+		my_choice = np.random.choice(things, probs)
 		
 	return my_choice
 	
@@ -129,7 +130,126 @@ def get_profiles():
 	except:
 		f = {}
 	return f
-	
+
+def pizza_builder(Profile):
+	toppings = raw_input("How many toppings do you want (in addition to cheese)?")
+	toppings = int(toppings)
+
+	wants_fancy_cheese = get_yes_or_no_answer("Do you want to pay extra for fancy cheese? ",
+											  "What are you talking about?")
+	carnivore = get_yes_or_no_answer("Do you want meat on this pizza? ", "I was trying to be nice.")
+	if carnivore:
+		wants_fancy_meat = get_yes_or_no_answer("Do you want to pay extra for fancy meat? ",
+												"Sir, you're making a scene.")
+	wants_fancy_veggies = get_yes_or_no_answer("Do you want to pay extra for avocados and single-handedly" \
+											   " cause the drought in California, you monster? ",
+											   "I think you know what I think about that.")
+
+	pizza = []
+
+	if Profile:
+		cheese_probs = []
+		if wants_fancy_cheese:
+			base_probs = 1.0 / (len(CHEESE + FANCY_CHEESE - Profile.cheese_dislike + Profile.cheesepref))
+			for a in (CHEESE + FANCY_CHEESE):
+				if a == Profile.cheese_dislike:
+					cheese_probs.append(0)
+				if a == Profile.cheesepref:
+					cheese_probs.append(base_probs * 2.0)
+				else:
+					cheese_probs.append(base_probs)
+		else:
+			base_probs = 1.0 / (len(CHEESE - Profile.cheese_dislike + Profile.cheesepref))
+			for a in (CHEESE + FANCY_CHEESE):
+				if a in FANCY_CHEESE:
+					cheese_probs.append(0)
+					continue
+				if a == Profile.cheese_dislike:
+					cheese_probs.append(0)
+				if a == Profile.cheesepref:
+					cheese_probs.append(base_probs * 2.0)
+				else:
+					cheese_probs.append(base_probs)
+		nonmeat_probs = []
+		if Profile.vegetarian:
+			base_probs = 1.0 / (len(NOT_MEAT + Profile.non_meatpref))
+			for a in NOT_MEAT:
+				if a == Profile.non_meatpref:
+					nonmeat_probs.append(base_probs * 2.0)
+				else:
+					nonmeat_probs.append(base_probs)
+		else:
+			meat_probs = []
+			if wants_fancy_meat:
+				base_probs = 1.0 / (len(MEAT + FANCY_MEAT - Profile.meat_dislike + Profile.meatpref))
+				for a in (MEAT + FANCY_MEAT):
+					if a == Profile.meat_dislike:
+						meat_probs.append(0)
+					if a == Profile.meatpref:
+						meat_probs.append(base_probs * 2.0)
+					else:
+						meat_probs.append(base_probs)
+			else:
+				base_probs = 1.0 / (len(MEAT - Profile.meat_dislike + Profile.meatpref))
+				for a in (MEAT + FANCY_MEAT):
+					if a == Profile.meat_dislike:
+						meat_probs.append(0)
+					if a == Profile.meatpref:
+						meat_probs.append(base_probs * 2.0)
+					else:
+						meat_probs.append(base_probs)
+
+		veggie_probs = []
+		if wants_fancy_veggies:
+			base_probs = 1.0 / (len(VEGGIES + FANCY_VEGGIES - Profile.veggie_dislike + Profile.veggiepref))
+			for a in (VEGGIES + FANCY_VEGGIES):
+				if a == Profile.veggie_dislike:
+					veggie_probs.append(0)
+				if a == Profile.veggiepref:
+					veggie_probs.append(base_probs * 2.0)
+				else:
+					veggie_probs.append(base_probs)
+		else:
+			base_probs = 1.0 / (len(VEGGIES - Profile.veggie_dislike + Profile.veggiepref))
+			for a in (VEGGIES + FANCY_VEGGIES):
+				if a == Profile.veggie_dislike:
+					veggie_probs.append(0)
+				if a == Profile.veggiepref:
+					veggie_probs.append(base_probs * 2.0)
+				else:
+					veggie_probs.append(base_probs)
+
+	else:
+		if wants_fancy_cheese:
+			CHEESE = CHEESE + FANCY_CHEESE
+			cheese_probs = []
+		if carnivore:
+			if wants_fancy_meat:
+				MEAT = MEAT + FANCY_MEAT
+				meat_probs = []
+			else:
+				meat_probs = []
+		if wants_fancy_veggies:
+			VEGGIES = VEGGIES + FANCY_VEGGIES
+			veggie_probs = []
+
+	pizza = []
+
+	# pizza.append(choose_with_probability(sauce, sauce_probs)) OOPS WE FORGOT ABOUT THE SAUCE OUR BAD
+	pizza.append(choose_with_probability(CHEESE + FANCY_CHEESE, cheese_probs))
+	pizza.append(choose_with_probability(MEAT + FANCY_MEAT, meat_probs))
+
+	for a in range(toppings - 1):
+		pizza.append(
+			choose_with_probability(VEGGIES + FANCY_VEGGIES, veggie_probs))  # TODO exclude duplicate veggies
+
+	print "CONGRATULATIONS! \nYour perfect personalized pizza is a delicious Mellow Mushroom pizza with:"
+
+	my_pizza = ""
+	for thing in pizza:
+		my_pizza += "%s " % thing
+
+	print pizza
 	
 if __name__ == "__main__":
 	
@@ -141,85 +261,20 @@ if __name__ == "__main__":
 
 	ProfileDict = get_profiles()
 	
-	x = get_yes_or_no_answer("Have you been here before?")
+	x = get_yes_or_no_answer("Have you been here before?","Don't be a dick.")
 	if x:
-		y = get_yes_or_no_answer("Did you make a taste profile?")
+		y = get_yes_or_no_answer("Did you make a taste profile?","Stop being difficult.")
 		if y: 
-			z = get_yes_or_no_answer("Do you want to use your taste profile today?")
+			z = get_yes_or_no_answer("Do you want to use your taste profile today?","Just answer the question.")
 		else:
 			Profile = False
 	else: 
-		a = get_yes_or_no_answer("Do you want to create a taste profile?")
+		a = get_yes_or_no_answer("Do you want to create a taste profile?","Come on, man.")
 		if a: 
 			Profile = TasteProfile()
 		else:
 			pass
+	pizza_builder(Profile)
 	
-	def pizza_builder(Profile):
-		toppings = raw_input("How many toppings do you want? ")
-		toppings=int(toppings)
-		
-		wants_fancy_cheese = get_yes_or_no_answer("Do you want to pay extra for fancy cheese? ",
-			"What are you talking about?")
-		carnivore = get_yes_or_no_answer("Do you want meat on this pizza? ", "I was trying to be nice.")
-		if carnivore:
-			wants_fancy_meat = get_yes_or_no_answer("Do you want to pay extra for fancy meat? ", 
-			"Sir, you're making a scene.")
-		wants_fancy_veggies = get_yes_or_no_answer("Do you want to pay extra for avocados and single-handedly"\
-			" cause the drought in California, you monster? ", "I think you know what I think about that.")
 
-		pizza = []
-
-		if Profile:
-			cheese_probs = []
-			if wants_fancy_cheese:
-				base_probs = 1.0/(len(CHEESE + FANCY_CHEESE - Profile.cheese_dislike + Profile.cheesepref))
-				for a in (CHEESE + FANCY_CHEESE):
-					if a == Profile.cheese_dislike:
-						cheese_probs.append(0)
-					if a == Profile.cheesepref:
-						cheese_probs.append(base_probs*2.0)
-			else:
-				base_probs = 1.0/(len(CHEESE - Profile.cheese_dislike + Profile.cheesepref))
-				for a in (CHEESE + FANCY_CHEESE):
-					if a in FANCY_CHEESE:
-						cheese_probs.append(0)
-						continue
-					if a == Profile.cheese_dislike:
-						cheese_probs.append(0)
-					if a == Profile.cheesepref:
-						cheese_probs.append(base_probs*2.0)
-					
-#WE ARE HERE GETTING READY FOR THE MEATS MEAAAAAAAAAAAAAAAAATTTTTTTTSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-		else:
-			
-		
-		pizza.append(choose_with_probability(sauce, sauce_probs))
-
-		if wants_fancy_cheese:
-			pizza.append(choose_with_probability(fancy_cheese))
-		else: 
-			pizza.append(choose_with_probability(cheese))
-
-		if not carnivore:
-			pizza.append(choose_with_probability(not_meat))
-		elif wants_fancy_meat:
-			pizza.append(choose_with_probability(fancy_meat))
-		else:
-			pizza.append(choose_with_probability(meat))
-
-		if wants_fancy_veggies:
-			pizza.append(choose_with_probability(fancy_veggies))
-			toppings -= 1
-			
-		for a in range(toppings-1):
-			pizza.append(choose_with_probability(veggies)) #TODO exclude duplicate veggies
-
-		print "CONGRATULATIONS! \nYour perfect personalized pizza is a delicious Mellow Mushroom pizza with:"
-
-		my_pizza = ""
-		for thing in pizza: 
-			my_pizza += "%s " % thing 
-			
-		print my_pizza
 
