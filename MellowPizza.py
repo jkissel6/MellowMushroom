@@ -59,23 +59,24 @@ class TasteProfile():
 			print "Did you win the lottery recently? Because premium meat is available for extra cash:"
 			ingredient_print(FANCY_MEAT)
 			self.meatpref = []
-			self.meatpref.append(raw_input("What's your favorite meat?"))
-			self.meatpref.append(raw_input("What's your next favorite meat?"))
+			self.meatpref.append(raw_input("What's your favorite meat? "))
+			self.meatpref.append(raw_input("What's your next favorite meat? "))
 			self.meat_dislike = []
-			self.meat_dislike.append(raw_input("Is there any meat you hate?"))
-			self.meat_dislike.append(raw_input("Anything else, hater?"))
+			self.meat_dislike.append(raw_input("Is there any meat you hate? "))
+			self.meat_dislike.append(raw_input("Anything else, hater? "))
 
 		print """Vegetables are good for you. The veggies below are normal-priced, except for one. 
 			If you wanna pay out the nose for an avocado and simultaneously cause the drought in Calfornia, you can do that, too. 
 			Here's your options:"""
 		ingredient_print(VEGGIES)
 		self.veggiepref = []
-		self.veggiepref.append(raw_input("What's your favorite vegetable?"))
-		self.veggiepref.append(raw_input("What's your next favorite veggie?"))
-		self.veggiepref.append(raw_input("How about one more? Michelle Obama will be proud."))
+		self.veggiepref.append(raw_input("What's your favorite vegetable? "))
+		self.veggiepref.append(raw_input("What's your next favorite veggie? "))
+		self.veggiepref.append(raw_input("How about one more? Michelle Obama will be proud. "))
 		self.veggie_dislike = []
-		self.veggie_dislike.append(raw_input("Which of these veggies do you hate?"))
-		self.veggie_dislike.append(raw_input("Anything else?"))
+		self.veggie_dislike.append(raw_input("Which of these veggies do you hate? "))
+		self.veggie_dislike.append(raw_input("Anything else? "))
+		self.veggie_dislike.append(raw_input("One more: "))
 
 		
 			
@@ -141,6 +142,14 @@ def get_profiles():
 	except:
 		f = {}
 	return f
+	
+def save_profile(profile_dict):
+	try:
+		with open("Profiles.dat", "wb") as file:
+			pickle.dump(profile_dict, file)
+			print "profile saved"
+	except IOError:
+		print "didn't save file successfully."
 
 def pizza_builder(Profile):
 	global CHEESE
@@ -250,7 +259,6 @@ def pizza_builder(Profile):
 	else: 
 		meat_list = MEAT
 		
-		
 	if wants_fancy_veggies:
 		veggie_list = VEGGIES + FANCY_VEGGIES
 	else: 
@@ -287,12 +295,14 @@ if __name__ == "__main__":
 		y = get_yes_or_no_answer("Did you make a taste profile? ","Stop being difficult.")
 		if y: 
 			z = get_yes_or_no_answer("Do you want to use your taste profile today? ","Just answer the question.")
-		
+			# TODO: Select, load profile here 
 	else: 
 		a = get_yes_or_no_answer("Do you want to create a taste profile? ","Come on, man.")
 		if a: 
 			Profile.profile_build()
-		
+			# TODO: add new profile to ProfileDict
+			save_profile(ProfileDict)
+			
 	pizza_builder(Profile)
 	
 
