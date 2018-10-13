@@ -23,7 +23,18 @@ FANCY_VEGGIES = ["avocado because you're a dirty Millennial"]
 
 class TasteProfile():
 	def __init__(self):
-		self.profile_build()
+		self.default_profile()
+	
+	def default_profile(self):
+		self.name = "default"
+		self.vegetarian = False
+		self.cheesepref = []
+		self.cheese_dislike = []
+		self.meatpref = []
+		self.meat_dislike = []
+		self.veggiepref = []
+		self.veggie_dislike = []
+		
 	def profile_build(self):
 		self.name = raw_input("What's your name?" )
 		self.vegetarian = get_yes_or_no_answer("Are you a vegetarian?" ,"Just answer me, dude.")
@@ -84,7 +95,7 @@ def choose_with_probability(things, probs =[]):
 	if len(probs) == 0: 
 		my_choice = random.choice(things)
 	else:
-		my_choice = np.random.choice(things, probs)
+		my_choice = np.random.choice(things, p=probs)
 		
 	return my_choice
 	
@@ -92,7 +103,7 @@ def get_yes_or_no_answer(text, reply):
 	max_times_to_ask = 3
 	times_asked = 0
 	got_response = False
-	acceptable_responses = ["yes", "yeah", "sure", "of course", "y", "uh huh", "yup"]
+	acceptable_responses = ["yes", "yeah", "yah", "ya", "sure", "of course", "y", "uh huh", "yup"]
 	negative_responses = ["no", "nah", "nope", "hell no", "no way", "n", "gross", "negative", "ew"]
 	
 	while got_response == False:
@@ -132,7 +143,15 @@ def get_profiles():
 	return f
 
 def pizza_builder(Profile):
-	toppings = raw_input("How many toppings do you want (in addition to cheese)?")
+	global CHEESE
+	global MEAT
+	global NOT_MEAT
+	global VEGGIES
+	global FANCY_CHEESE
+	global FANCY_MEAT
+	global FANCY_VEGGIES
+
+	toppings = raw_input("How many toppings do you want (in addition to cheese)? ")
 	toppings = int(toppings)
 
 	wants_fancy_cheese = get_yes_or_no_answer("Do you want to pay extra for fancy cheese? ",
@@ -141,6 +160,8 @@ def pizza_builder(Profile):
 	if carnivore:
 		wants_fancy_meat = get_yes_or_no_answer("Do you want to pay extra for fancy meat? ",
 												"Sir, you're making a scene.")
+	else:
+		wants_fancy_meat = False
 	wants_fancy_veggies = get_yes_or_no_answer("Do you want to pay extra for avocados and single-handedly" \
 											   " cause the drought in California, you monster? ",
 											   "I think you know what I think about that.")
@@ -150,29 +171,26 @@ def pizza_builder(Profile):
 	if Profile:
 		cheese_probs = []
 		if wants_fancy_cheese:
-			base_probs = 1.0 / (len(CHEESE + FANCY_CHEESE - Profile.cheese_dislike + Profile.cheesepref))
+			base_probs = 1.0 / (len(CHEESE) + len(FANCY_CHEESE) - len(Profile.cheese_dislike) + len(Profile.cheesepref))
 			for a in (CHEESE + FANCY_CHEESE):
 				if a == Profile.cheese_dislike:
 					cheese_probs.append(0)
-				if a == Profile.cheesepref:
+				elif a == Profile.cheesepref:
 					cheese_probs.append(base_probs * 2.0)
 				else:
 					cheese_probs.append(base_probs)
 		else:
-			base_probs = 1.0 / (len(CHEESE - Profile.cheese_dislike + Profile.cheesepref))
-			for a in (CHEESE + FANCY_CHEESE):
-				if a in FANCY_CHEESE:
-					cheese_probs.append(0)
-					continue
+			base_probs = 1.0 / (len(CHEESE) - len(Profile.cheese_dislike) + len(Profile.cheesepref))
+			for a in (CHEESE):
 				if a == Profile.cheese_dislike:
 					cheese_probs.append(0)
-				if a == Profile.cheesepref:
+				elif a == Profile.cheesepref:
 					cheese_probs.append(base_probs * 2.0)
 				else:
 					cheese_probs.append(base_probs)
 		nonmeat_probs = []
 		if Profile.vegetarian:
-			base_probs = 1.0 / (len(NOT_MEAT + Profile.non_meatpref))
+			base_probs = 1.0 / (len(NOT_MEAT) + len(Profile.non_meatpref))
 			for a in NOT_MEAT:
 				if a == Profile.non_meatpref:
 					nonmeat_probs.append(base_probs * 2.0)
@@ -181,67 +199,69 @@ def pizza_builder(Profile):
 		else:
 			meat_probs = []
 			if wants_fancy_meat:
-				base_probs = 1.0 / (len(MEAT + FANCY_MEAT - Profile.meat_dislike + Profile.meatpref))
+				base_probs = 1.0 / (len(MEAT) + len(FANCY_MEAT) - len(Profile.meat_dislike) + len(Profile.meatpref))
 				for a in (MEAT + FANCY_MEAT):
 					if a == Profile.meat_dislike:
-						meat_probs.append(0)
-					if a == Profile.meatpref:
+						meat_probs.append(0) 
+					elif a == Profile.meatpref:
 						meat_probs.append(base_probs * 2.0)
 					else:
 						meat_probs.append(base_probs)
 			else:
-				base_probs = 1.0 / (len(MEAT - Profile.meat_dislike + Profile.meatpref))
-				for a in (MEAT + FANCY_MEAT):
+				base_probs = 1.0 / (len(MEAT) - len(Profile.meat_dislike) + len(Profile.meatpref))
+				for a in (MEAT):
 					if a == Profile.meat_dislike:
 						meat_probs.append(0)
-					if a == Profile.meatpref:
+					elif a == Profile.meatpref:
 						meat_probs.append(base_probs * 2.0)
 					else:
 						meat_probs.append(base_probs)
 
 		veggie_probs = []
 		if wants_fancy_veggies:
-			base_probs = 1.0 / (len(VEGGIES + FANCY_VEGGIES - Profile.veggie_dislike + Profile.veggiepref))
+			base_probs = 1.0 / (len(VEGGIES) + len(FANCY_VEGGIES) - len(Profile.veggie_dislike) + len(Profile.veggiepref))
 			for a in (VEGGIES + FANCY_VEGGIES):
 				if a == Profile.veggie_dislike:
 					veggie_probs.append(0)
-				if a == Profile.veggiepref:
+				elif a == Profile.veggiepref:
 					veggie_probs.append(base_probs * 2.0)
 				else:
 					veggie_probs.append(base_probs)
 		else:
-			base_probs = 1.0 / (len(VEGGIES - Profile.veggie_dislike + Profile.veggiepref))
-			for a in (VEGGIES + FANCY_VEGGIES):
+			base_probs = 1.0 / (len(VEGGIES) - len(Profile.veggie_dislike) + len(Profile.veggiepref))
+			for a in (VEGGIES):
 				if a == Profile.veggie_dislike:
 					veggie_probs.append(0)
-				if a == Profile.veggiepref:
+				elif a == Profile.veggiepref:
 					veggie_probs.append(base_probs * 2.0)
 				else:
 					veggie_probs.append(base_probs)
 
-	else:
-		if wants_fancy_cheese:
-			CHEESE = CHEESE + FANCY_CHEESE
-			cheese_probs = []
-		if carnivore:
-			if wants_fancy_meat:
-				MEAT = MEAT + FANCY_MEAT
-				meat_probs = []
-			else:
-				meat_probs = []
-		if wants_fancy_veggies:
-			VEGGIES = VEGGIES + FANCY_VEGGIES
-			veggie_probs = []
-
 	pizza = []
 
 	# pizza.append(choose_with_probability(sauce, sauce_probs)) OOPS WE FORGOT ABOUT THE SAUCE OUR BAD
-	pizza.append(choose_with_probability(CHEESE + FANCY_CHEESE, cheese_probs))
-	pizza.append(choose_with_probability(MEAT + FANCY_MEAT, meat_probs))
+	if wants_fancy_cheese:
+		cheese_list = CHEESE + FANCY_CHEESE
+	else:
+		cheese_list = CHEESE
+		
+	if wants_fancy_meat:
+		meat_list = MEAT + FANCY_MEAT
+	else: 
+		meat_list = MEAT
+		
+		
+	if wants_fancy_veggies:
+		veggie_list = VEGGIES + FANCY_VEGGIES
+	else: 
+		veggie_list = VEGGIES
+	
+	pizza.append(choose_with_probability(cheese_list, cheese_probs))
+	pizza.append(choose_with_probability(meat_list, meat_probs))
 
 	for a in range(toppings - 1):
 		pizza.append(
-			choose_with_probability(VEGGIES + FANCY_VEGGIES, veggie_probs))  # TODO exclude duplicate veggies
+			choose_with_probability(veggie_list, veggie_probs))  # TODO exclude duplicate veggies
 
 	print "CONGRATULATIONS! \nYour perfect personalized pizza is a delicious Mellow Mushroom pizza with:"
 
@@ -260,20 +280,19 @@ if __name__ == "__main__":
 	print "You can choose your favorite ingredients to make a pizza just for you or make a random pizza!"
 
 	ProfileDict = get_profiles()
+	Profile = TasteProfile()
 	
-	x = get_yes_or_no_answer("Have you been here before?","Don't be a dick.")
+	x = get_yes_or_no_answer("Have you been here before? ","Don't be a dick.")
 	if x:
-		y = get_yes_or_no_answer("Did you make a taste profile?","Stop being difficult.")
+		y = get_yes_or_no_answer("Did you make a taste profile? ","Stop being difficult.")
 		if y: 
-			z = get_yes_or_no_answer("Do you want to use your taste profile today?","Just answer the question.")
-		else:
-			Profile = False
+			z = get_yes_or_no_answer("Do you want to use your taste profile today? ","Just answer the question.")
+		
 	else: 
-		a = get_yes_or_no_answer("Do you want to create a taste profile?","Come on, man.")
+		a = get_yes_or_no_answer("Do you want to create a taste profile? ","Come on, man.")
 		if a: 
-			Profile = TasteProfile()
-		else:
-			pass
+			Profile.profile_build()
+		
 	pizza_builder(Profile)
 	
 
