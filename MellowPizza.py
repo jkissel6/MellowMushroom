@@ -46,9 +46,17 @@ class TasteProfile():
 		self.cheesepref.append(raw_input("What is your favorite cheese?"))
 		self.cheesepref.append(raw_input("What is your second favorite cheese?"))
 		self.cheese_dislike = []
-		self.cheese_dislike.append(raw_input("Is there any cheese you hate?"))
-		self.cheese_dislike.append(raw_input("Anything else, hater?"))
-		#remember to code for idiots who answer bullshit
+		if get_yes_or_no_answer("Is there any cheese you hate? ", "Just be straight with me."):
+			while True:
+				v = raw_input("Enter a cheese you hate or type 'done' to exit. ")
+				if v in ["done", "Done", " done", " Done", "done!", "no"]:
+					break
+				elif v in CHEESE + FANCY_CHEESE:
+					self.cheese_dislike.append(v)
+				else:
+					print "ERROR! WTF, learn to type."
+
+		#TODO remember to code for idiots who answer bullshit
 		if self.vegetarian:
 			print "Here are some non-meat protein options, you hippie:"
 			ingredient_print(NOT_MEAT)
@@ -62,8 +70,15 @@ class TasteProfile():
 			self.meatpref.append(raw_input("What's your favorite meat? "))
 			self.meatpref.append(raw_input("What's your next favorite meat? "))
 			self.meat_dislike = []
-			self.meat_dislike.append(raw_input("Is there any meat you hate? "))
-			self.meat_dislike.append(raw_input("Anything else, hater? "))
+			if get_yes_or_no_answer("Is there any meat you hate? ", "Just be straight with me."):
+				while True:
+					v = raw_input("Enter a meat you hate or type 'done' to exit. ")
+					if v in ["done", "Done", " done", " Done", "done!", "no"]:
+						break
+					if v in MEAT + FANCY_MEAT:
+						self.meat_dislike.append(v)
+					else:
+						print "Error! WTF, learn to type."
 
 		print """Vegetables are good for you. The veggies below are normal-priced, except for one. 
 			If you wanna pay out the nose for an avocado and simultaneously cause the drought in Calfornia, you can do that, too. 
@@ -74,9 +89,15 @@ class TasteProfile():
 		self.veggiepref.append(raw_input("What's your next favorite veggie? "))
 		self.veggiepref.append(raw_input("How about one more? Michelle Obama will be proud. "))
 		self.veggie_dislike = []
-		self.veggie_dislike.append(raw_input("Which of these veggies do you hate? "))
-		self.veggie_dislike.append(raw_input("Anything else? "))
-		self.veggie_dislike.append(raw_input("One more: "))
+		if get_yes_or_no_answer("Is there any veggie you hate? ", "Just be straight with me."):
+			while True:
+				v = raw_input("Enter a vegetable you hate or type 'done' to exit. ")
+				if v in ["done", "Done", " done", " Done", "done!", "no"]:
+					break
+				if v in VEGGIES + FANCY_VEGGIES:
+					self.veggie_dislike.append(v)
+				else:
+					print "Error! WTF, learn to type."
 
 		
 			
@@ -166,6 +187,7 @@ def pizza_builder(Profile):
 	wants_fancy_cheese = get_yes_or_no_answer("Do you want to pay extra for fancy cheese? ",
 											  "What are you talking about?")
 	carnivore = get_yes_or_no_answer("Do you want meat on this pizza? ", "I was trying to be nice.")
+	#TODO this only actually address fancy meat, needs to avoid all meat
 	if carnivore:
 		wants_fancy_meat = get_yes_or_no_answer("Do you want to pay extra for fancy meat? ",
 												"Sir, you're making a scene.")
@@ -182,18 +204,18 @@ def pizza_builder(Profile):
 		if wants_fancy_cheese:
 			base_probs = 1.0 / (len(CHEESE) + len(FANCY_CHEESE) - len(Profile.cheese_dislike) + len(Profile.cheesepref))
 			for a in (CHEESE + FANCY_CHEESE):
-				if a == Profile.cheese_dislike:
+				if a in Profile.cheese_dislike:
 					cheese_probs.append(0)
-				elif a == Profile.cheesepref:
+				elif a in Profile.cheesepref:
 					cheese_probs.append(base_probs * 2.0)
 				else:
 					cheese_probs.append(base_probs)
 		else:
 			base_probs = 1.0 / (len(CHEESE) - len(Profile.cheese_dislike) + len(Profile.cheesepref))
 			for a in (CHEESE):
-				if a == Profile.cheese_dislike:
+				if a in Profile.cheese_dislike:
 					cheese_probs.append(0)
-				elif a == Profile.cheesepref:
+				elif a in Profile.cheesepref:
 					cheese_probs.append(base_probs * 2.0)
 				else:
 					cheese_probs.append(base_probs)
@@ -201,7 +223,7 @@ def pizza_builder(Profile):
 		if Profile.vegetarian:
 			base_probs = 1.0 / (len(NOT_MEAT) + len(Profile.non_meatpref))
 			for a in NOT_MEAT:
-				if a == Profile.non_meatpref:
+				if a in Profile.non_meatpref:
 					nonmeat_probs.append(base_probs * 2.0)
 				else:
 					nonmeat_probs.append(base_probs)
@@ -210,18 +232,18 @@ def pizza_builder(Profile):
 			if wants_fancy_meat:
 				base_probs = 1.0 / (len(MEAT) + len(FANCY_MEAT) - len(Profile.meat_dislike) + len(Profile.meatpref))
 				for a in (MEAT + FANCY_MEAT):
-					if a == Profile.meat_dislike:
+					if a in Profile.meat_dislike:
 						meat_probs.append(0) 
-					elif a == Profile.meatpref:
+					elif a in Profile.meatpref:
 						meat_probs.append(base_probs * 2.0)
 					else:
 						meat_probs.append(base_probs)
 			else:
 				base_probs = 1.0 / (len(MEAT) - len(Profile.meat_dislike) + len(Profile.meatpref))
 				for a in (MEAT):
-					if a == Profile.meat_dislike:
+					if a in Profile.meat_dislike:
 						meat_probs.append(0)
-					elif a == Profile.meatpref:
+					elif a in Profile.meatpref:
 						meat_probs.append(base_probs * 2.0)
 					else:
 						meat_probs.append(base_probs)
@@ -230,18 +252,18 @@ def pizza_builder(Profile):
 		if wants_fancy_veggies:
 			base_probs = 1.0 / (len(VEGGIES) + len(FANCY_VEGGIES) - len(Profile.veggie_dislike) + len(Profile.veggiepref))
 			for a in (VEGGIES + FANCY_VEGGIES):
-				if a == Profile.veggie_dislike:
+				if a in Profile.veggie_dislike:
 					veggie_probs.append(0)
-				elif a == Profile.veggiepref:
+				elif a in Profile.veggiepref:
 					veggie_probs.append(base_probs * 2.0)
 				else:
 					veggie_probs.append(base_probs)
 		else:
 			base_probs = 1.0 / (len(VEGGIES) - len(Profile.veggie_dislike) + len(Profile.veggiepref))
 			for a in (VEGGIES):
-				if a == Profile.veggie_dislike:
+				if a in Profile.veggie_dislike:
 					veggie_probs.append(0)
-				elif a == Profile.veggiepref:
+				elif a in Profile.veggiepref:
 					veggie_probs.append(base_probs * 2.0)
 				else:
 					veggie_probs.append(base_probs)
@@ -263,21 +285,27 @@ def pizza_builder(Profile):
 		veggie_list = VEGGIES + FANCY_VEGGIES
 	else: 
 		veggie_list = VEGGIES
-	
-	pizza.append(choose_with_probability(cheese_list, cheese_probs))
-	pizza.append(choose_with_probability(meat_list, meat_probs))
 
-	for a in range(toppings - 1):
-		pizza.append(
-			choose_with_probability(veggie_list, veggie_probs))  # TODO exclude duplicate veggies
+	while True:
+		pizza = []
+		pizza.append(choose_with_probability(cheese_list, cheese_probs))
+		pizza.append(choose_with_probability(meat_list, meat_probs))
 
-	print "CONGRATULATIONS! \nYour perfect personalized pizza is a delicious Mellow Mushroom pizza with:"
+		for a in range(toppings - 1):
+			pizza.append(
+				choose_with_probability(veggie_list, veggie_probs))  # TODO exclude duplicate veggies
 
-	my_pizza = ""
-	for thing in pizza:
-		my_pizza += "%s " % thing
+		print "Your personalized pizza has:"
 
-	print pizza
+		my_pizza = ""
+		for thing in pizza:
+			my_pizza += "%s " % thing
+
+		print my_pizza
+
+		if get_yes_or_no_answer("Do you like your pizza? ","Decide, man!"):
+			print "HURRAY! Congratulations, your pizza will be delicious!"
+			break
 	
 if __name__ == "__main__":
 	
@@ -292,15 +320,20 @@ if __name__ == "__main__":
 	
 	x = get_yes_or_no_answer("Have you been here before? ","Don't be a dick.")
 	if x:
-		y = get_yes_or_no_answer("Did you make a taste profile? ","Stop being difficult.")
+		y = get_yes_or_no_answer("Did you make a taste profile? ","Stop being difficult.") #TODO this doesn't ask you to build a profile whomp whomp
 		if y: 
+			print "These are the profiles I have:"
+			ingredient_print(ProfileDict.keys())
+			saved_name = raw_input("Which one are you? ")
 			z = get_yes_or_no_answer("Do you want to use your taste profile today? ","Just answer the question.")
-			# TODO: Select, load profile here 
+			if z:
+				Profile = ProfileDict[saved_name]
 	else: 
 		a = get_yes_or_no_answer("Do you want to create a taste profile? ","Come on, man.")
 		if a: 
 			Profile.profile_build()
 			# TODO: add new profile to ProfileDict
+			ProfileDict[Profile.name] = Profile
 			save_profile(ProfileDict)
 			
 	pizza_builder(Profile)
