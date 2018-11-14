@@ -3,7 +3,6 @@
 import random, pickle
 import numpy as np
 
-#global variables are usually in all caps TODO change all these below
 SAUCE = ["olive oil and garlic","pesto","Mellow Red Sauce"]
 
 CHEESE = ["mozzarella","cheddar","feta cheese","parmesan","provolone","ricotta",
@@ -15,11 +14,13 @@ FANCY_MEAT = ["all-natural grilled chicken", "all-natural grilled steak"]
 NOT_MEAT = ["tofu","tempeh"]
 
 VEGGIES = ["artichoke hearts","banana peppers", "basil", "black olives",
-         "caramelized onions","garlic","green olives","green peppers",
-         "jalapenos","Kalamata olives", "mushrooms", "onions", "pepperoncini", "pineapple", 
+		 "caramelized onions","garlic","green olives","green peppers",
+		 "jalapenos","Kalamata olives", "mushrooms", "onions", "pepperoncini", "pineapple",
 		 "pesto swirl","portobello mushrooms", "roasted mushroom trio", "roasted red peppers",
 		 "roma tomatoes","spinach","roasted tomatoes"]
 FANCY_VEGGIES = ["avocado because you're a dirty Millennial"]
+
+#TODO: error if you say you both like and hate something (JONATHAN), edit your profile/delete it, make other options valid (i.e. caps vs. not, bacon vs. applewood smoked bacon)
 
 class TasteProfile():
 	def __init__(self):
@@ -34,19 +35,27 @@ class TasteProfile():
 		self.meat_dislike = []
 		self.veggiepref = []
 		self.veggie_dislike = []
-		
+
+	def SpellCheck(self,question,ingredients):
+		while True:
+			ans = raw_input(question)
+			if ans in ingredients:
+				return ans
+			else:
+				print "CHOICE NOT FOUND. Learn to spell."
+
 	def profile_build(self):
-		self.name = raw_input("What's your name?" )
-		self.vegetarian = get_yes_or_no_answer("Are you a vegetarian?" ,"Just answer me, dude.")
+		self.name = raw_input("What's your name? " )
+		self.vegetarian = get_yes_or_no_answer("Are you a vegetarian? " ,"Just answer me, dude.")
 		print "Check out your cheese options:"
 		ingredient_print(CHEESE)
-		print "If you are independently weathly, they also offer these fancy cheeses for an additional fee:"
+		print "If you are independently wealthy, they also offer these fancy cheeses for an additional fee:"
 		ingredient_print(FANCY_CHEESE)
 		self.cheesepref = []
-		self.cheesepref.append(raw_input("What is your favorite cheese?"))
-		self.cheesepref.append(raw_input("What is your second favorite cheese?"))
+		self.cheesepref.append(self.SpellCheck("What is your favorite cheese? ",CHEESE+FANCY_CHEESE))
+		self.cheesepref.append(self.SpellCheck("What is your second favorite cheese? ", CHEESE+FANCY_CHEESE))
 		self.cheese_dislike = []
-		if get_yes_or_no_answer("Is there any cheese you hate? ", "Just be straight with me."):
+		if get_yes_or_no_answer("Is there any cheese you hate? (y/n) ", "Just be straight with me."):
 			while True:
 				v = raw_input("Enter a cheese you hate or type 'done' to exit. ")
 				if v in ["done", "Done", " done", " Done", "done!", "no"]:
@@ -56,21 +65,20 @@ class TasteProfile():
 				else:
 					print "ERROR! WTF, learn to type."
 
-		#TODO remember to code for idiots who answer bullshit
 		if self.vegetarian:
 			print "Here are some non-meat protein options, you hippie:"
 			ingredient_print(NOT_MEAT)
-			self.non_meatpref = raw_input("What is your favorite kind of fake dead animal?")
+			self.non_meatpref = self.SpellCheck("What is your favorite kind of fake dead animal?",NOT_MEAT)
 		else:
 			print "Hey Carnivore, have some meat choices:"
 			ingredient_print(MEAT)
 			print "Did you win the lottery recently? Because premium meat is available for extra cash:"
 			ingredient_print(FANCY_MEAT)
 			self.meatpref = []
-			self.meatpref.append(raw_input("What's your favorite meat? "))
-			self.meatpref.append(raw_input("What's your next favorite meat? "))
+			self.meatpref.append(self.SpellCheck("What's your favorite meat? ",MEAT+FANCY_MEAT))
+			self.meatpref.append(self.SpellCheck("What's your next favorite meat? ", MEAT+FANCY_MEAT))
 			self.meat_dislike = []
-			if get_yes_or_no_answer("Is there any meat you hate? ", "Just be straight with me."):
+			if get_yes_or_no_answer("Is there any meat you hate? (y/n) ", "Just be straight with me."):
 				while True:
 					v = raw_input("Enter a meat you hate or type 'done' to exit. ")
 					if v in ["done", "Done", " done", " Done", "done!", "no"]:
@@ -85,11 +93,11 @@ class TasteProfile():
 			Here's your options:"""
 		ingredient_print(VEGGIES)
 		self.veggiepref = []
-		self.veggiepref.append(raw_input("What's your favorite vegetable? "))
-		self.veggiepref.append(raw_input("What's your next favorite veggie? "))
-		self.veggiepref.append(raw_input("How about one more? Michelle Obama will be proud. "))
+		self.veggiepref.append(self.SpellCheck("What's your favorite vegetable? ",VEGGIES+FANCY_VEGGIES))
+		self.veggiepref.append(self.SpellCheck("What's your next favorite veggie? ",VEGGIES+FANCY_VEGGIES))
+		self.veggiepref.append(self.SpellCheck("How about one more? Michelle Obama will be proud. ",VEGGIES+FANCY_VEGGIES))
 		self.veggie_dislike = []
-		if get_yes_or_no_answer("Is there any veggie you hate? ", "Just be straight with me."):
+		if get_yes_or_no_answer("Is there any veggie you hate? (y/n) ", "Just be straight with me."):
 			while True:
 				v = raw_input("Enter a vegetable you hate or type 'done' to exit. ")
 				if v in ["done", "Done", " done", " Done", "done!", "no"]:
@@ -168,7 +176,7 @@ def save_profile(profile_dict):
 	try:
 		with open("Profiles.dat", "wb") as file:
 			pickle.dump(profile_dict, file)
-			print "profile saved"
+			print "PROFILE SAVED! MELLOW MUSHROOM LOVES YOU, TOO!"
 	except IOError:
 		print "didn't save file successfully."
 
@@ -184,16 +192,16 @@ def pizza_builder(Profile):
 	toppings = raw_input("How many toppings do you want (in addition to cheese)? ")
 	toppings = int(toppings)
 
-	wants_fancy_cheese = get_yes_or_no_answer("Do you want to pay extra for fancy cheese? ",
+	wants_fancy_cheese = get_yes_or_no_answer("Are you willing to pay extra for fancy cheese? ",
 											  "What are you talking about?")
 	carnivore = get_yes_or_no_answer("Do you want meat on this pizza? ", "I was trying to be nice.")
 	#TODO this only actually address fancy meat, needs to avoid all meat
 	if carnivore:
-		wants_fancy_meat = get_yes_or_no_answer("Do you want to pay extra for fancy meat? ",
+		wants_fancy_meat = get_yes_or_no_answer("Are you willing to pay extra for fancy meat? ",
 												"Sir, you're making a scene.")
 	else:
 		wants_fancy_meat = False
-	wants_fancy_veggies = get_yes_or_no_answer("Do you want to pay extra for avocados and single-handedly" \
+	wants_fancy_veggies = get_yes_or_no_answer("Are you willing to pay extra for avocados and single-handedly" \
 											   " cause the drought in California, you monster? ",
 											   "I think you know what I think about that.")
 
@@ -324,7 +332,15 @@ if __name__ == "__main__":
 		if y: 
 			print "These are the profiles I have:"
 			ingredient_print(ProfileDict.keys())
-			saved_name = raw_input("Which one are you? ")
+			while True:
+				saved_name = raw_input("Which one are you? ")
+				if saved_name in ProfileDict.keys():
+					break
+				if saved_name == "root":
+					#TODO make admin mode, but for now
+					break
+				else:
+					print "Do you not know how to spell your own name? Idiot."
 			z = get_yes_or_no_answer("Do you want to use your taste profile today? ","Just answer the question.")
 			if z:
 				Profile = ProfileDict[saved_name]
@@ -332,7 +348,6 @@ if __name__ == "__main__":
 		a = get_yes_or_no_answer("Do you want to create a taste profile? ","Come on, man.")
 		if a: 
 			Profile.profile_build()
-			# TODO: add new profile to ProfileDict
 			ProfileDict[Profile.name] = Profile
 			save_profile(ProfileDict)
 			
